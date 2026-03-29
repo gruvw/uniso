@@ -1,11 +1,210 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Uniso</title>
-  </head>
-  <body>
-    Hello World!
-  </body>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Uniso</title>
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      font-family: sans-serif;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .uniso-container {
+      display: flex;
+      justify-content: center;
+      margin: 20px;
+
+      position: relative;
+    }
+
+    .uniso {
+      --top-width: 40px;
+
+      display: flex;
+      width: fit-content;
+    }
+
+    .key {
+      display: inline-flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+
+      padding-bottom: 20px;
+
+      border: 2px solid black;
+      background-color: white;
+    }
+
+    .btm {
+      width: 65px;
+      height: 200px;
+      border-left: none;
+    }
+
+    .btm:first-child {
+      border-left: 2px solid black;
+    }
+
+    .top {
+      width: var(--top-width);
+      height: 130px;
+      margin: 0 calc(-1*var(--top-width)/2);
+      z-index: 2;
+    }
+
+    #top-1,
+    #top-2,
+    #btm-1,
+    #btm-2 {
+      cursor: pointer;
+    }
+
+    .dropdown-container {
+      display: none;
+
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 5;
+    }
+
+    .note-dropdown {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 5px;
+
+      padding: 10px;
+      border: 2px solid black;
+
+      background-color: white;
+
+      list-style: none;
+    }
+
+    .note-dropdown li {
+      display: inline-block;
+      text-align: center;
+
+      width: 30px;
+      padding: 5px;
+
+      border: 1px solid black;
+
+      cursor: pointer;
+    }
+
+    .note-dropdown li.disabled {
+      background-color: grey;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="uniso-container">
+    <div class="dropdown-container" id="note-select">
+      <ul class="note-dropdown">
+      </ul>
+    </div>
+
+    <div class="uniso">
+      <span class="key btm" id="btm-1">?</span>
+      <span class="key top" id="top-1">?</span>
+      <span class="key btm" id="btm-2">?</span>
+      <span class="key top" id="top-2">?</span>
+      <span class="key btm"></span>
+      <span class="key top"></span>
+      <span class="key btm"></span>
+      <span class="key top"></span>
+      <span class="key btm"></span>
+      <span class="key top"></span>
+      <span class="key btm"></span>
+      <span class="key top"></span>
+    </div>
+  </div>
+
+  <script>
+    const NOTES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+
+    const keys = [
+      document.getElementById("btm-1"),
+      document.getElementById("btm-2"),
+      document.getElementById("top-1"),
+      document.getElementById("top-2"),
+    ];
+    const noteSelect = document.getElementById("note-select");
+
+    // state
+    let currentSelectIndex = 0;
+    let notesIndex = [-1, -1, -1, -1];
+
+    function showNoteSelect(index) {
+      currentSelectIndex = index;
+      noteSelect.style.display = "block";
+    }
+
+    function hideNoteSelect() {
+      noteSelect.style.display = "none";
+    }
+
+    function update() {
+      for (const [i, key] of keys.entries()) {
+        const noteIndex = notesIndex[i];
+        if (noteIndex != -1) {
+          key.textContent = NOTES[noteIndex];
+        }
+      }
+    }
+
+    for (const [i, note] of NOTES.entries()) {
+      const li = document.createElement("li");
+      li.textContent = note;
+
+      li.addEventListener("click", () => {
+        notesIndex[currentSelectIndex] = i;
+        update();
+        hideNoteSelect();
+      });
+
+      noteSelect.querySelector("ul").appendChild(li);
+    }
+
+    for (const [i, key] of keys.entries()) {
+      key.addEventListener("click", (e) => {
+        e.stopPropagation();
+        showNoteSelect(i);
+      });
+    }
+
+    document.addEventListener("click", (e) => {
+      if (!noteSelect.contains(e.target)) {
+        hideNoteSelect();
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        hideNoteSelect();
+      }
+    });
+  </script>
+</body>
+
 </html>
