@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 
+<!-- TODO scales notes (minor, major) -->
+<!-- TODO chords (minor, major) -->
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -68,7 +71,6 @@
     }
 
     #top-1,
-    #top-2,
     #btm-1,
     #btm-2 {
       cursor: pointer;
@@ -110,6 +112,10 @@
       cursor: pointer;
     }
 
+    .note-dropdown li:hover {
+      background-color: #eee;
+    }
+
     .note-dropdown li.disabled {
       background-color: grey;
       cursor: not-allowed;
@@ -128,7 +134,7 @@
       <span class="key btm" id="btm-1">?</span>
       <span class="key top" id="top-1">?</span>
       <span class="key btm" id="btm-2">?</span>
-      <span class="key top" id="top-2">?</span>
+      <span class="key top"></span>
       <span class="key btm"></span>
       <span class="key top"></span>
       <span class="key btm"></span>
@@ -147,16 +153,68 @@
       document.getElementById("btm-1"),
       document.getElementById("btm-2"),
       document.getElementById("top-1"),
-      document.getElementById("top-2"),
     ];
     const noteSelect = document.getElementById("note-select");
 
     // state
     let currentSelectIndex = 0;
-    let notesIndex = [-1, -1, -1, -1];
+    let notesIndex = [-1, -1, -1];
+
+    function isValidNotes(btm1, btm2, top1) {
+      const btm = [];
+
+      const step = (btm2 - btm1 + NOTES.length) % NOTES.length;
+
+      for (let i = 0; i < NOTES.length / 2; i++) {
+        const btmNoteIdx = (btm1 + i * step) % NOTES.length;
+        btm.push(NOTES[btmNoteIdx]);
+      }
+
+      const top = NOTES.filter(note => !btm.includes(note));
+      console.log(top);
+
+      if (!top.includes(NOTES[top1])) {
+        return false;
+      }
+
+      return true;
+    }
+
+    function updateDisabled(disabled) {
+      const selects = noteSelect.querySelectorAll("li");
+
+      selects.forEach((select, i) => {
+        if (disabled.includes(i)) {
+          select.classList.add("disabled");
+        } else {
+          select.classList.remove("disabled");
+        }
+      });
+    }
 
     function showNoteSelect(index) {
       currentSelectIndex = index;
+
+      if (currentSelectIndex === 0) {
+        updateDisabled([notesIndex[1]]);
+      } else if (currentSelectIndex === 1) {
+        updateDisabled([notesIndex[0]]);
+      } else {
+        if (notesIndex[0] != -1 && notesIndex[1] != -1) {
+          const disabledIndices = [];
+
+          NOTES.forEach((_, i) => {
+            if (!isValidNotes(notesIndex[0], notesIndex[1], i)) {
+              disabledIndices.push(i);
+            }
+          });
+
+          updateDisabled(disabledIndices);
+        } else {
+          updateDisabled([]);
+        }
+      }
+
       noteSelect.style.display = "block";
     }
 
@@ -165,33 +223,41 @@
     }
 
     function update() {
-      for (const [i, key] of keys.entries()) {
+      keys.forEach((key, i) => {
         const noteIndex = notesIndex[i];
         if (noteIndex != -1) {
           key.textContent = NOTES[noteIndex];
         }
+      });
+
+      if (notesIndex.includes(-1) || !isValidNotes(...notesIndex)) {
+        return;
       }
     }
 
-    for (const [i, note] of NOTES.entries()) {
+    NOTES.forEach((note, i) => {
       const li = document.createElement("li");
       li.textContent = note;
 
       li.addEventListener("click", () => {
+        if (li.classList.contains("disabled")) {
+          return;
+        }
+
         notesIndex[currentSelectIndex] = i;
         update();
         hideNoteSelect();
       });
 
       noteSelect.querySelector("ul").appendChild(li);
-    }
+    });
 
-    for (const [i, key] of keys.entries()) {
+    keys.forEach((key, i) => {
       key.addEventListener("click", (e) => {
         e.stopPropagation();
         showNoteSelect(i);
       });
-    }
+    });
 
     document.addEventListener("click", (e) => {
       if (!noteSelect.contains(e.target)) {
