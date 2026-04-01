@@ -170,6 +170,10 @@
         btm.push(NOTES[btmNoteIdx]);
       }
 
+      if (new Set(myArray).size === 12) {
+
+      }
+
       const top = NOTES.filter(note => !btm.includes(note));
       console.log(top);
 
