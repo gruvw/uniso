@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Uniso Scales</title>
+
+  <style>
+    :root {
+      --bottom-color: white;
+      --top-color: black;
+      --highlight-color: grey;
+      --scale-color: purple;
+      --scale-root-color: green;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    .uniso-container {
+      display: flex;
+      margin: 10px;
+    }
+
+    .note {
+      display: flex;
+      justify-content: center;
+      align-items: end;
+
+      padding-bottom: 10px;
+
+      font-family: "Arial";
+      font-weight: bold;
+      font-size: 12px;
+
+      border: 2px solid black;
+      background-color: var(--bg-color);
+    }
+
+    .note.bottom {
+      --bg-color: var(--bottom-color);
+
+      width: 48px;
+      height: 150px;
+      background-color: var(--bg-color);
+    }
+
+    .note.top {
+      --bg-color: var(--top-color);
+
+      width: 24px;
+      height: 100px;
+      color: white;
+
+      margin-left: -14px;
+      margin-right: -16px;
+      transform: translateX(-1px);
+
+      z-index: 1;
+    }
+
+    .note.highlight {
+      background-color: color-mix(in srgb, var(--bg-color) 50%, var(--highlight-color) 50%);;
+    }
+
+    .note.scale {
+      --bg-color: var(--scale-color);
+      color: black;
+    }
+    .note.scale-root {
+      --bg-color: var(--scale-root-color);
+      color: black;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="uniso-container">
+  </div>
+
+  <script>
+    const NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+    const OCTAVES = 2;
+
+    const container = document.querySelector(".uniso-container")
+
+    for (let o = 0; o < OCTAVES; o++) {
+      for (let i = 0; i < NAMES.length / 2; i++) {
+        container.innerHTML += `
+          <span class="note bottom">${NAMES[2*i]}</span>
+          <span class="note top">${NAMES[2*i+1]}</span>
+        `;
+      }
+    }
+
+    const notes = container.querySelectorAll(".note");
+
+    notes.forEach((n, i) => {
+        const noteIndex = i % NAMES.length;
+        if (noteIndex === 0 || noteIndex === 5) {
+            n.classList.add("highlight");
+        }
+    });
+  </script>
+</body>
+
+</html>
