@@ -1,5 +1,5 @@
 {
-  description = "RP2040 Rust dev shell";
+  description = "RP2040 Rust Environment";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -9,28 +9,24 @@
   outputs = { self, nixpkgs, rust-overlay }:
     let
       system = "x86_64-linux";
+      overlays = [ (import rust-overlay) ];
+      pkgs = import nixpkgs { inherit system overlays; };
 
-      pkgs = import nixpkgs {
-        inherit system;
-        overlays = [ (import rust-overlay) ];
+      rust-toolchain = pkgs.rust-bin.stable.latest.default.override {
+        extensions = [ "rust-src" "rust-analyzer" ];
+        targets = [ "thumbv8m.main-none-eabihf" ];
       };
-
-      rust = pkgs.rust-bin.stable.latest.default.override {
-        targets = [ "thumbv6m-none-eabi" ];
-      };
-
-    in {
+    in
+    {
       devShells.${system}.default = pkgs.mkShell {
         buildInputs = [
-          rust
-          pkgs.probe-rs
+          rust-toolchain
           pkgs.flip-link
-          pkgs.pkg-config
+          pkgs.picotool    # Replaces elf2uf2-rs
+          pkgs.pkg-config  # Needed for USB compilation helpers
+          pkgs.libusb1     # USB library
+          pkgs.probe-rs-tools
         ];
-
-        shellHook = ''
-          echo "Embassy RP2040 environment ready"
-        '';
       };
     };
 }
