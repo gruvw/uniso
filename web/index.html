@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<!-- TODO scales notes (minor, major) -->
-<!-- TODO chords (minor, major) -->
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Uniso</title>
+
+  <title>Uniso Scales</title>
+
   <style>
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-      font-family: sans-serif;
+    :root {
+      --bottom-color: white;
+      --top-color: black;
+      --highlight-color: grey;
+      --scale-color: #0ea5e9;
+      --scale-root-color: #f59e0b;
     }
 
     * {
@@ -21,259 +21,176 @@
       padding: 0;
     }
 
-    body {
-      display: flex;
-      flex-direction: column;
-    }
-
     .uniso-container {
       display: flex;
-      justify-content: center;
-      margin: 20px;
-
-      position: relative;
+      margin: 16px;
     }
 
-    .uniso {
-      --top-width: 40px;
-
+    .note {
       display: flex;
-      width: fit-content;
-    }
-
-    .key {
-      display: inline-flex;
       flex-direction: column;
       justify-content: flex-end;
       align-items: center;
 
-      padding-bottom: 20px;
+      padding-bottom: 16px;
+
+      font-family: "Arial";
+      font-weight: bold;
+      font-size: 12px;
 
       border: 2px solid black;
-      background-color: white;
+      background-color: var(--bg-color);
+
+      position: relative;
+      overflow: hidden;
     }
 
-    .btm {
-      width: 65px;
-      height: 200px;
-      border-left: none;
-    }
-
-    .btm:first-child {
-      border-left: 2px solid black;
-    }
-
-    .top {
-      width: var(--top-width);
-      height: 130px;
-      margin: 0 calc(-1*var(--top-width)/2);
-      z-index: 2;
-    }
-
-    #top-1,
-    #btm-1,
-    #btm-2 {
-      cursor: pointer;
-    }
-
-    .dropdown-container {
-      display: none;
-
+    .note::after {
+      content: "";
       position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 5;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 8px;
+      background-color: transparent;
+      transition: background-color 0.2s ease;
     }
 
-    .note-dropdown {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      grid-template-rows: repeat(3, 1fr);
-      gap: 5px;
-
-      padding: 10px;
-      border: 2px solid black;
-
-      background-color: white;
-
-      list-style: none;
+    .note.scale::after {
+      background-color: var(--scale-color);
     }
 
-    .note-dropdown li {
-      display: inline-block;
-      text-align: center;
-
-      width: 30px;
-      padding: 5px;
-
-      border: 1px solid black;
-
-      cursor: pointer;
+    .note.scale-root::after {
+      background-color: var(--scale-root-color);
     }
 
-    .note-dropdown li:hover {
-      background-color: #eee;
+    .note.bottom {
+      width: 48px;
+      height: 150px;
+      background-color: var(--bottom-color);
     }
 
-    .note-dropdown li.disabled {
-      background-color: grey;
-      cursor: not-allowed;
+    .note.top {
+      width: 24px;
+      height: 100px;
+      background-color: var(--top-color);
+      color: white;
+
+      margin-left: -14px;
+      margin-right: -16px;
+      transform: translateX(-1px);
+
+      z-index: 1;
+    }
+
+    .note.highlight {
+      background-color: var(--highlight-color);
+      color: white;
+    }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      padding: 12px 16px;
+      flex-wrap: wrap;
+    }
+    .controls label {
+      font-size: 13px;
+      margin-right: 4px;
     }
   </style>
 </head>
 
 <body>
-  <div class="uniso-container">
-    <div class="dropdown-container" id="note-select">
-      <ul class="note-dropdown">
-      </ul>
-    </div>
+  <div class="uniso-container" id="keyboard"></div>
 
-    <div class="uniso">
-      <span class="key btm" id="btm-1">?</span>
-      <span class="key top" id="top-1">?</span>
-      <span class="key btm" id="btm-2">?</span>
-      <span class="key top"></span>
-      <span class="key btm"></span>
-      <span class="key top"></span>
-      <span class="key btm"></span>
-      <span class="key top"></span>
-      <span class="key btm"></span>
-      <span class="key top"></span>
-      <span class="key btm"></span>
-      <span class="key top"></span>
+  <div class="controls">
+    <div>
+      <label for="root-select">Root</label>
+      <select id="root-select"></select>
+    </div>
+    <div>
+      <label for="scale-select">Scale</label>
+      <select id="scale-select">
+        <option value="none">None</option>
+        <option value="major">Major</option>
+        <option value="minor">Minor</option>
+      </select>
     </div>
   </div>
 
   <script>
-    const NOTES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+    const NAMES = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+    <!-- const NAMES = ["C","C'","D","D'","E","E'","F","F'","A","A'","B","B'"]; -->
+    const OCTAVES = 2;
 
-    const keys = [
-      document.getElementById("btm-1"),
-      document.getElementById("btm-2"),
-      document.getElementById("top-1"),
-    ];
-    const noteSelect = document.getElementById("note-select");
+    const SCALE_INTERVALS = {
+      major: [0,2,4,5,7,9,11],
+      minor: [0,2,3,5,7,8,10],
+      none: []
+    };
 
-    // state
-    let currentSelectIndex = 0;
-    let notesIndex = [-1, -1, -1];
+    const container = document.getElementById("keyboard");
+    const rootSelect = document.getElementById("root-select");
 
-    function isValidNotes(btm1, btm2, top1) {
-      const btm = [];
+    function buildKeyboard() {
+      rootSelect.innerHTML = "";
+      NAMES.forEach(noteName => {
+        const option = document.createElement("option");
+        option.value = noteName;
+        option.textContent = noteName;
+        rootSelect.appendChild(option);
+      });
 
-      const step = (btm2 - btm1 + NOTES.length) % NOTES.length;
+      container.innerHTML = "";
+      for (let o = 0; o < OCTAVES; o++) {
+        for (let i = 0; i < NAMES.length / 2; i++) {
+          const bottom = document.createElement("span");
+          bottom.className = "note bottom" + (i == 0 ? " highlight" : "");
+          bottom.textContent = NAMES[2*i];
+          bottom.dataset.note = NAMES[2*i];
 
-      for (let i = 0; i < NOTES.length / 2; i++) {
-        const btmNoteIdx = (btm1 + i * step) % NOTES.length;
-        btm.push(NOTES[btmNoteIdx]);
+          const top = document.createElement("span");
+          top.className = "note top" + (i == 2 ? " highlight" : "");
+          top.textContent = NAMES[2*i+1];
+          top.dataset.note = NAMES[2*i+1];
+
+          container.appendChild(bottom);
+          container.appendChild(top);
+        }
       }
-
-      if (new Set(myArray).size === 12) {
-
-      }
-
-      const top = NOTES.filter(note => !btm.includes(note));
-      console.log(top);
-
-      if (!top.includes(NOTES[top1])) {
-        return false;
-      }
-
-      return true;
     }
 
-    function updateDisabled(disabled) {
-      const selects = noteSelect.querySelectorAll("li");
+    function applyClasses() {
+      const root = document.getElementById("root-select").value;
+      const scaleType = document.getElementById("scale-select").value;
+      const rootIdx = NAMES.indexOf(root);
+      const intervals = SCALE_INTERVALS[scaleType];
+      const scaleSet = new Set(intervals.map(i => (rootIdx + i) % 12));
 
-      selects.forEach((select, i) => {
-        if (disabled.includes(i)) {
-          select.classList.add("disabled");
-        } else {
-          select.classList.remove("disabled");
+      const notes = container.querySelectorAll(".note");
+      notes.forEach((n, i) => {
+        const noteIndex = i % NAMES.length;
+        const noteNameIndex = NAMES.indexOf(n.dataset.note);
+
+        n.classList.remove("scale", "scale-root");
+
+        if (scaleType !== "none") {
+          if (noteNameIndex === rootIdx) {
+            n.classList.add("scale-root");
+          } else if (scaleSet.has(noteNameIndex)) {
+            n.classList.add("scale");
+          }
         }
       });
     }
 
-    function showNoteSelect(index) {
-      currentSelectIndex = index;
+    buildKeyboard();
+    applyClasses();
 
-      if (currentSelectIndex === 0) {
-        updateDisabled([notesIndex[1]]);
-      } else if (currentSelectIndex === 1) {
-        updateDisabled([notesIndex[0]]);
-      } else {
-        if (notesIndex[0] != -1 && notesIndex[1] != -1) {
-          const disabledIndices = [];
-
-          NOTES.forEach((_, i) => {
-            if (!isValidNotes(notesIndex[0], notesIndex[1], i)) {
-              disabledIndices.push(i);
-            }
-          });
-
-          updateDisabled(disabledIndices);
-        } else {
-          updateDisabled([]);
-        }
-      }
-
-      noteSelect.style.display = "block";
-    }
-
-    function hideNoteSelect() {
-      noteSelect.style.display = "none";
-    }
-
-    function update() {
-      keys.forEach((key, i) => {
-        const noteIndex = notesIndex[i];
-        if (noteIndex != -1) {
-          key.textContent = NOTES[noteIndex];
-        }
-      });
-
-      if (notesIndex.includes(-1) || !isValidNotes(...notesIndex)) {
-        return;
-      }
-    }
-
-    NOTES.forEach((note, i) => {
-      const li = document.createElement("li");
-      li.textContent = note;
-
-      li.addEventListener("click", () => {
-        if (li.classList.contains("disabled")) {
-          return;
-        }
-
-        notesIndex[currentSelectIndex] = i;
-        update();
-        hideNoteSelect();
-      });
-
-      noteSelect.querySelector("ul").appendChild(li);
-    });
-
-    keys.forEach((key, i) => {
-      key.addEventListener("click", (e) => {
-        e.stopPropagation();
-        showNoteSelect(i);
-      });
-    });
-
-    document.addEventListener("click", (e) => {
-      if (!noteSelect.contains(e.target)) {
-        hideNoteSelect();
-      }
-    });
-
-    document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape") {
-        hideNoteSelect();
-      }
-    });
+    document.getElementById("root-select").addEventListener("change", applyClasses);
+    document.getElementById("scale-select").addEventListener("change", applyClasses);
   </script>
 </body>
 
