@@ -327,7 +327,9 @@ select:focus-visible, .btn:focus-visible, .pill-toggle:focus-visible, .np-hist:f
 }
 .piano-panel .panel-head { margin-bottom: var(--sp-3); }
 .piano-scroll { overflow-x: auto; overflow-y: hidden; padding-bottom: 6px; }
-.toggles { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+.toggles { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); }
+
+
 
 /* Standard piano (optional, above the Uniso one, same scroll) */
 .piano.std-piano {
@@ -834,6 +836,7 @@ select:focus-visible, .btn:focus-visible, .pill-toggle:focus-visible, .np-hist:f
 }
 .dialog::backdrop { background: rgba(10, 10, 20, 0.45); }
 .dialog form { display: grid; gap: var(--sp-4); }
+.dialog .field[hidden] { display: none; }
 .dialog #dlgNote { width: 100%; }
 .dlg-key { margin: 0; display: flex; gap: var(--sp-2); align-items: center; }
 .dlg-row { display: flex; gap: var(--sp-4); align-items: flex-end; }

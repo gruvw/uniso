@@ -98,7 +98,7 @@
         </label>
         <button type="button" id="scaleClear" class="btn push-right" title="Deselect scale">✕ Deselect</button>
       </div>
-      <div class="scale-line">
+      <div class="scale-line notes-line">
         <span class="label">Notes</span>
         <ol id="scaleNotes" class="scale-chain" aria-label="Scale notes and steps"></ol>
       </div>
@@ -177,6 +177,14 @@
       </p>
 
       <label class="field">
+        <span>Action</span>
+        <select id="dlgAction">
+          <option value="note">Play a note</option>
+          <option value="sustain">Sustain pedal (CC 64)</option>
+        </select>
+      </label>
+
+      <label class="field" id="dlgNoteField">
         <span>Note</span>
         <select id="dlgNote"></select>
       </label>
@@ -186,7 +194,7 @@
           <span>Channel</span>
           <select id="dlgChannel"></select>
         </label>
-        <label class="field grow">
+        <label class="field grow" id="dlgVelField">
           <span>Velocity <output id="dlgVelOut">100</output></span>
           <input type="range" id="dlgVelocity" min="1" max="127" value="100">
         </label>
