@@ -366,7 +366,13 @@
       "note": 83,
       "channel": null,
       "velocity": 100
+    },
+    {
+      "code": "Space",
+      "label": "Space",
+      "action": "sustain",
+      "channel": null
     }
   ],
-  "exportedAt": "2026-10-29T17:57:46.486Z"
+  "exportedAt": "2026-10-29T22:39:24.864Z"
 }

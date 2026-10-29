@@ -162,6 +162,7 @@ const state = {
   history: [],                // recent chords [{ root, id, inv, symbol, fullName }]
   historyTimer: null,
   pointerNote: null,          // { note, channel } while a piano key is clicked
+  sustain: new Map(),         // channel -> number of sustain keys held
   lastNote: null,
 };
 
@@ -193,6 +194,9 @@ const els = {
   dlgKey: $('dlgKey'),
   dlgCode: $('dlgCode'),
   dlgNote: $('dlgNote'),
+  dlgAction: $('dlgAction'),
+  dlgNoteField: $('dlgNoteField'),
+  dlgVelField: $('dlgVelField'),
   dlgChannel: $('dlgChannel'),
   dlgVelocity: $('dlgVelocity'),
   dlgVelOut: $('dlgVelOut'),
@@ -433,11 +437,39 @@ function panic() {
   state.sounding.clear();
   for (const key of [...pianoKeys.values(), ...stdKeys.values()]) key.classList.remove('active');
   scheduleDetect();
+  state.sustain.clear();
   for (let ch = 0; ch < 16; ch++) {
+    send([0xb0 | ch, 64, 0]);  // Sustain off
     send([0xb0 | ch, 123, 0]); // All Notes Off
     send([0xb0 | ch, 120, 0]); // All Sound Off
   }
   addLog(state.output ? 'All notes off (ch 1–16)' : 'All notes off — no output selected', !state.output);
+}
+
+/* ------------------------------ sustain ----------------------------- */
+
+const isSustain = (m) => m && m.action === 'sustain';
+
+function sendSustain(channel, on) {
+  const ok = send([0xb0 | (channel - 1), 64, on ? 127 : 0]);
+  addLog(ok ? `Sustain ${on ? 'on ' : 'off'}  · ch ${channel}` : 'Sustain — no output selected', !ok);
+}
+
+/* Several sustain keys may share a channel: pedal down on the first, up on the last. */
+function sustainDown(channel) {
+  const count = state.sustain.get(channel) || 0;
+  state.sustain.set(channel, count + 1);
+  if (count === 0) sendSustain(channel, true);
+}
+
+function sustainUp(channel) {
+  const count = (state.sustain.get(channel) || 0) - 1;
+  if (count > 0) {
+    state.sustain.set(channel, count);
+  } else {
+    state.sustain.delete(channel);
+    sendSustain(channel, false);
+  }
 }
 
 /* ------------------------------ playing ----------------------------- */
@@ -446,8 +478,13 @@ function pressKey(code) {
   const mapping = state.mappings.get(code);
   if (!mapping || state.held.has(code)) return;
   const channel = effectiveChannel(mapping);
-  state.held.set(code, { note: mapping.note, channel });
-  startVoice(mapping.note, channel, mapping.velocity);
+  if (isSustain(mapping)) {
+    state.held.set(code, { sustain: true, channel });
+    sustainDown(channel);
+  } else {
+    state.held.set(code, { note: mapping.note, channel });
+    startVoice(mapping.note, channel, mapping.velocity);
+  }
   markActive(code, true);
 }
 
@@ -455,7 +492,8 @@ function releaseKey(code) {
   const held = state.held.get(code);
   if (!held) return;
   state.held.delete(code);
-  stopVoice(held.note, held.channel);
+  if (held.sustain) sustainUp(held.channel);
+  else stopVoice(held.note, held.channel);
   markActive(code, false);
 }
 
@@ -1306,18 +1344,32 @@ function openDialog(code, label) {
   els.dlgKey.textContent = state.editing.label;
   els.dlgCode.textContent = code;
   els.dlgChannel.options[0].textContent = `Default (ch ${state.defaultChannel})`;
-  els.dlgNote.value = String(existing ? existing.note : suggestNote());
+  els.dlgAction.value = isSustain(existing) ? 'sustain' : 'note';
+  els.dlgNote.value = String(existing && !isSustain(existing) ? existing.note : suggestNote());
   els.dlgChannel.value = existing && existing.channel != null ? String(existing.channel) : '';
   els.dlgVelocity.value = String(existing ? existing.velocity : DEFAULT_VELOCITY);
   els.dlgVelOut.textContent = els.dlgVelocity.value;
 
+  updateDialogAction();
+
   els.dialog.returnValue = '';
   els.dialog.showModal();
-  els.dlgNote.focus();
+  (els.dlgAction.value === 'sustain' ? els.dlgAction : els.dlgNote).focus();
+}
+
+/** Note mappings need a note and velocity; a sustain key only needs its channel. */
+function updateDialogAction() {
+  const sustain = els.dlgAction.value === 'sustain';
+  els.dlgNoteField.hidden = sustain;
+  els.dlgVelField.hidden = sustain;
+  els.dlgPreview.textContent = sustain ? '▶ Test pedal' : '▶ Preview';
 }
 
 function dialogValues() {
   const channel = els.dlgChannel.value === '' ? null : Number(els.dlgChannel.value);
+  if (els.dlgAction.value === 'sustain') {
+    return { action: 'sustain', note: null, channel, velocity: DEFAULT_VELOCITY };
+  }
   return {
     note: Number(els.dlgNote.value),
     channel,
@@ -1325,9 +1377,16 @@ function dialogValues() {
   };
 }
 
+/** Press the sustain pedal briefly (for "Test"). */
+function testSustain(channel) {
+  sustainDown(channel);
+  setTimeout(() => sustainUp(channel), 600);
+}
+
 function previewFromDialog() {
   const v = dialogValues();
-  preview(v.note, v.channel ?? state.defaultChannel, v.velocity);
+  if (v.action === 'sustain') testSustain(v.channel ?? state.defaultChannel);
+  else preview(v.note, v.channel ?? state.defaultChannel, v.velocity);
 }
 
 function onDialogClose() {
@@ -1339,7 +1398,7 @@ function onDialogClose() {
   const v = dialogValues();
   if (state.held.has(editing.code)) releaseKey(editing.code);
   state.mappings.set(editing.code, { code: editing.code, label: editing.label, ...v });
-  state.lastNote = v.note;
+  if (v.note != null) state.lastNote = v.note;
   render();
   save();
 }
@@ -1348,7 +1407,8 @@ function onDialogClose() {
 
 function render() {
   const rows = [];
-  const sorted = [...state.mappings.values()].sort((a, b) => a.note - b.note || a.code.localeCompare(b.code));
+  const order = (m) => (isSustain(m) ? 1000 : m.note); // sustain keys go last
+  const sorted = [...state.mappings.values()].sort((a, b) => order(a) - order(b) || a.code.localeCompare(b.code));
   for (const m of sorted) {
     const channelCell = m.channel != null
       ? el('td', { textContent: String(m.channel) })
@@ -1356,11 +1416,13 @@ function render() {
 
     const row = el('tr', {},
       el('td', {}, el('kbd', { textContent: m.label }), el('span', { className: 'muted mono key-code', textContent: m.code })),
-      el('td', {}, el('span', { className: 'note-name', textContent: noteName(m.note) }), ' ', el('span', { className: 'muted', textContent: String(m.note) })),
+      isSustain(m)
+        ? el('td', {}, el('span', { className: 'note-name', textContent: 'Sustain' }), ' ', el('span', { className: 'muted', textContent: 'CC 64' }))
+        : el('td', {}, el('span', { className: 'note-name', textContent: noteName(m.note) }), ' ', el('span', { className: 'muted', textContent: String(m.note) })),
       channelCell,
-      el('td', { textContent: String(m.velocity) }),
+      el('td', { textContent: isSustain(m) ? '—' : String(m.velocity) }),
       el('td', { className: 'actions' },
-        el('button', { type: 'button', className: 'btn small', textContent: '▶ Test', title: 'Play this note' }),
+        el('button', { type: 'button', className: 'btn small', textContent: '▶ Test', title: isSustain(m) ? 'Press the sustain pedal' : 'Play this note' }),
         el('button', { type: 'button', className: 'btn small', textContent: 'Edit' }),
         el('button', { type: 'button', className: 'btn danger small', textContent: 'Remove' }),
       ),
@@ -1394,7 +1456,8 @@ function onTableClick(e) {
 
   switch (btn.dataset.action) {
     case 'test':
-      preview(mapping.note, effectiveChannel(mapping), mapping.velocity);
+      if (isSustain(mapping)) testSustain(effectiveChannel(mapping));
+      else preview(mapping.note, effectiveChannel(mapping), mapping.velocity);
       break;
     case 'edit':
       openDialog(code, mapping.label);
@@ -1412,12 +1475,14 @@ function onTableClick(e) {
 
 function sanitizeMapping(raw) {
   if (!raw || typeof raw !== 'object' || typeof raw.code !== 'string' || !raw.code) return null;
+  const channel = raw.channel == null || raw.channel === '' ? null : toInt(raw.channel, 1, 16);
+  const label = typeof raw.label === 'string' && raw.label.trim() ? raw.label.slice(0, 40) : raw.code;
+  const code = raw.code.slice(0, 64);
+  if (raw.action === 'sustain') return { code, label, action: 'sustain', note: null, channel, velocity: DEFAULT_VELOCITY };
   const note = toInt(raw.note, 0, 127);
   if (note === null) return null;
   const velocity = toInt(raw.velocity, 1, 127) ?? DEFAULT_VELOCITY;
-  const channel = raw.channel == null || raw.channel === '' ? null : toInt(raw.channel, 1, 16);
-  const label = typeof raw.label === 'string' && raw.label.trim() ? raw.label.slice(0, 40) : raw.code;
-  return { code: raw.code.slice(0, 64), label, note, channel, velocity };
+  return { code, label, note, channel, velocity };
 }
 
 function parseMappingData(data) {
@@ -1438,8 +1503,8 @@ function serialize() {
     app: FILE_TAG,
     version: FILE_VERSION,
     defaultChannel: state.defaultChannel,
-    mappings: [...state.mappings.values()].map(({ code, label, note, channel, velocity }) => (
-      { code, label, note, channel, velocity }
+    mappings: [...state.mappings.values()].map(({ code, label, note, channel, velocity, action }) => (
+      action === 'sustain' ? { code, label, action, channel } : { code, label, note, channel, velocity }
     )),
   };
 }
@@ -1632,6 +1697,7 @@ function bind() {
   });
 
   els.dlgNote.addEventListener('change', previewFromDialog);
+  els.dlgAction.addEventListener('change', updateDialogAction);
   els.dlgPreview.addEventListener('click', previewFromDialog);
   els.dlgVelocity.addEventListener('input', () => {
     els.dlgVelOut.textContent = els.dlgVelocity.value;
