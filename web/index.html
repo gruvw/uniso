@@ -1,197 +1,206 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <title>Uniso Scales</title>
-
-  <style>
-    :root {
-      --bottom-color: white;
-      --top-color: black;
-      --highlight-color: grey;
-      --scale-color: #0ea5e9;
-      --scale-root-color: #f59e0b;
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-    }
-
-    .uniso-container {
-      display: flex;
-      margin: 16px;
-    }
-
-    .note {
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      align-items: center;
-
-      padding-bottom: 16px;
-
-      font-family: "Arial";
-      font-weight: bold;
-      font-size: 12px;
-
-      border: 2px solid black;
-      background-color: var(--bg-color);
-
-      position: relative;
-      overflow: hidden;
-    }
-
-    .note::after {
-      content: "";
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 8px;
-      background-color: transparent;
-      transition: background-color 0.2s ease;
-    }
-
-    .note.scale::after {
-      background-color: var(--scale-color);
-    }
-
-    .note.scale-root::after {
-      background-color: var(--scale-root-color);
-    }
-
-    .note.bottom {
-      width: 48px;
-      height: 150px;
-      background-color: var(--bottom-color);
-    }
-
-    .note.top {
-      width: 24px;
-      height: 100px;
-      background-color: var(--top-color);
-      color: white;
-
-      margin-left: -14px;
-      margin-right: -16px;
-      transform: translateX(-1px);
-
-      z-index: 1;
-    }
-
-    .note.highlight {
-      background-color: var(--highlight-color);
-      color: white;
-    }
-
-    .controls {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      padding: 12px 16px;
-      flex-wrap: wrap;
-    }
-    .controls label {
-      font-size: 13px;
-      margin-right: 4px;
-    }
-  </style>
+  <title>Uniso Virtual Midi Keyboard</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
-  <div class="uniso-container" id="keyboard"></div>
+  <header class="top">
+    <h1>Uniso <span class="h1-sub">Virtual Midi Keyboard</span></h1>
+    <p id="midiStatus" class="status">Requesting MIDI access…</p>
+  </header>
 
-  <div class="controls">
-    <div>
-      <label for="root-select">Root</label>
-      <select id="root-select"></select>
+  <section class="panel piano-panel" aria-label="Piano visualizer">
+    <div class="panel-head">
+      <h2>Uniso <span class="muted">C1 – B6</span></h2>
+      <div class="toggles">
+        <button type="button" id="stdToggle" class="pill-toggle" aria-pressed="false"
+                title="Show a regular piano layout above the Uniso one">
+          <span class="pill-dot" aria-hidden="true"></span>Standard piano
+        </button>
+        <button type="button" id="bindsToggle" class="pill-toggle" aria-pressed="true"
+                title="Show or hide the computer keys on the piano">
+          <span class="pill-dot" aria-hidden="true"></span>Keyboard keys
+        </button>
+      </div>
     </div>
-    <div>
-      <label for="scale-select">Scale</label>
-      <select id="scale-select">
-        <option value="none">None</option>
-        <option value="major">Major</option>
-        <option value="minor">Minor</option>
-      </select>
+    <div id="pianoScroll" class="piano-scroll">
+      <div id="stdPiano" class="piano std-piano" hidden aria-label="Standard piano"></div>
+      <div id="chordLane" class="chord-lane">
+        <div id="laneRuler" class="lane-ruler" aria-hidden="true"></div>
+        <div id="laneBadges" class="lane-badges"></div>
+      </div>
+      <div id="piano" class="piano"></div>
     </div>
-  </div>
+  </section>
 
-  <script>
-    const NAMES = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
-    <!-- const NAMES = ["C","C'","D","D'","E","E'","F","F'","A","A'","B","B'"]; -->
-    const OCTAVES = 2;
+  <main>
+    <section class="panel np-panel" aria-label="Chords">
+      <div class="panel-head">
+        <h2 class="theory-title"><i class="swatch swatch-chord" aria-hidden="true"></i>Chords</h2>
+        <span id="npState" class="np-state" hidden></span>
+      </div>
 
-    const SCALE_INTERVALS = {
-      major: [0,2,4,5,7,9,11],
-      minor: [0,2,3,5,7,8,10],
-      none: []
-    };
+      <div class="chord-bar">
+        <label class="field root">
+          <span>Root</span>
+          <select id="chordRoot"></select>
+        </label>
+        <label class="field grow">
+          <span>Chord</span>
+          <select id="chordType"></select>
+        </label>
+        <label class="field grow">
+          <span>Voicing</span>
+          <select id="chordInv"></select>
+        </label>
+        <button type="button" id="chordPlay" class="btn primary">▶ Play</button>
+        <button type="button" id="chordAction" class="btn chord-action" disabled>✕ Deselect</button>
+      </div>
 
-    const container = document.getElementById("keyboard");
-    const rootSelect = document.getElementById("root-select");
+      <div id="npBody" class="np-body" aria-live="polite">
+        <div class="np-head">
+          <div id="npSymbol" class="np-symbol">—</div>
+          <div class="np-desc">
+            <div id="npMode" class="label np-mode"></div>
+            <div id="npName" class="np-title"></div>
+            <div id="npMeta" class="np-meta"></div>
+            <div id="npAlt" class="np-alt"></div>
+          </div>
+        </div>
+        <div class="np-tones">
+          <span id="npTonesLabel" class="label">Notes · bass to top</span>
+          <ol id="npTones" class="np-notes"></ol>
+        </div>
+      </div>
 
-    function buildKeyboard() {
-      rootSelect.innerHTML = "";
-      NAMES.forEach(noteName => {
-        const option = document.createElement("option");
-        option.value = noteName;
-        option.textContent = noteName;
-        rootSelect.appendChild(option);
-      });
+      <div class="np-history">
+        <span class="label">Recent chords</span>
+        <ol id="npHistory" class="np-history-list"></ol>
+        <button type="button" id="npHistoryClear" class="btn small">Clear</button>
+      </div>
+    </section>
 
-      container.innerHTML = "";
-      for (let o = 0; o < OCTAVES; o++) {
-        for (let i = 0; i < NAMES.length / 2; i++) {
-          const bottom = document.createElement("span");
-          bottom.className = "note bottom" + (i == 0 ? " highlight" : "");
-          bottom.textContent = NAMES[2*i];
-          bottom.dataset.note = NAMES[2*i];
+    <section class="panel scale-panel" aria-label="Scale">
+      <div class="panel-head">
+        <h2 class="theory-title"><i class="swatch swatch-scale" aria-hidden="true"></i>Scale</h2>
+      </div>
+      <div class="scale-bar">
+        <label class="field root">
+          <span>Root</span>
+          <select id="scaleRoot"></select>
+        </label>
+        <label class="field scale-type">
+          <span>Type</span>
+          <select id="scaleType"></select>
+        </label>
+        <button type="button" id="scaleClear" class="btn push-right" title="Deselect scale">✕ Deselect</button>
+      </div>
+      <div class="scale-line">
+        <span class="label">Notes</span>
+        <ol id="scaleNotes" class="scale-chain" aria-label="Scale notes and steps"></ol>
+      </div>
+      <div class="scale-line">
+        <span class="label">Triads</span>
+        <div id="scaleTriads" class="triad-list"></div>
+      </div>
+    </section>
 
-          const top = document.createElement("span");
-          top.className = "note top" + (i == 2 ? " highlight" : "");
-          top.textContent = NAMES[2*i+1];
-          top.dataset.note = NAMES[2*i+1];
+    <section class="panel">
+      <h2>Output</h2>
+      <div class="controls">
+        <label class="field">
+          <span>MIDI output port</span>
+          <select id="outputSelect" disabled>
+            <option>Waiting for MIDI…</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Default channel</span>
+          <select id="channelSelect"></select>
+        </label>
+        <button type="button" id="panicBtn" class="btn push-right">All notes off</button>
+      </div>
+    </section>
 
-          container.appendChild(bottom);
-          container.appendChild(top);
-        }
-      }
-    }
+    <section class="panel">
+      <div class="panel-head">
+        <h2>MIDI monitor</h2>
+        <button type="button" id="clearLogBtn" class="btn">Clear</button>
+      </div>
+      <ol id="log" class="log"></ol>
+    </section>
 
-    function applyClasses() {
-      const root = document.getElementById("root-select").value;
-      const scaleType = document.getElementById("scale-select").value;
-      const rootIdx = NAMES.indexOf(root);
-      const intervals = SCALE_INTERVALS[scaleType];
-      const scaleSet = new Set(intervals.map(i => (rootIdx + i) % 12));
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Key mappings <span id="mapCount" class="muted"></span></h2>
+        <div class="toolbar">
+          <button type="button" id="addBtn" class="btn primary">+ Add key</button>
+          <button type="button" id="exportBtn" class="btn">Export…</button>
+          <button type="button" id="importBtn" class="btn">Import…</button>
+          <button type="button" id="clearBtn" class="btn danger">Clear all</button>
+          <input type="file" id="importInput" accept=".json,application/json" hidden>
+        </div>
+      </div>
 
-      const notes = container.querySelectorAll(".note");
-      notes.forEach((n, i) => {
-        const noteIndex = i % NAMES.length;
-        const noteNameIndex = NAMES.indexOf(n.dataset.note);
+      <p id="captureBanner" class="capture" hidden>
+        Press a key to map… <kbd>Esc</kbd> cancels.
+      </p>
 
-        n.classList.remove("scale", "scale-root");
+      <div class="table-scroll">
+        <table id="mapTable" class="map-table">
+          <thead>
+            <tr>
+              <th>Key</th>
+              <th>Note</th>
+              <th>Channel</th>
+              <th>Velocity</th>
+              <th class="right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="mapBody"></tbody>
+        </table>
+      </div>
+      <p id="emptyMsg" class="empty">
+        No keys mapped. <strong>+ Add key</strong> → press a key → pick a note.
+      </p>
+    </section>
+  </main>
 
-        if (scaleType !== "none") {
-          if (noteNameIndex === rootIdx) {
-            n.classList.add("scale-root");
-          } else if (scaleSet.has(noteNameIndex)) {
-            n.classList.add("scale");
-          }
-        }
-      });
-    }
+  <dialog id="noteDialog" class="dialog">
+    <form method="dialog" id="noteForm">
+      <h3 id="dlgTitle">New mapping</h3>
+      <p class="dlg-key">
+        Key <kbd id="dlgKey"></kbd> <span id="dlgCode" class="muted mono"></span>
+      </p>
 
-    buildKeyboard();
-    applyClasses();
+      <label class="field">
+        <span>Note</span>
+        <select id="dlgNote"></select>
+      </label>
 
-    document.getElementById("root-select").addEventListener("change", applyClasses);
-    document.getElementById("scale-select").addEventListener("change", applyClasses);
-  </script>
+      <div class="dlg-row">
+        <label class="field">
+          <span>Channel</span>
+          <select id="dlgChannel"></select>
+        </label>
+        <label class="field grow">
+          <span>Velocity <output id="dlgVelOut">100</output></span>
+          <input type="range" id="dlgVelocity" min="1" max="127" value="100">
+        </label>
+      </div>
+
+      <div class="dlg-actions">
+        <button type="button" id="dlgPreview" class="btn">▶ Preview</button>
+        <span class="spacer"></span>
+        <button value="cancel" class="btn">Cancel</button>
+        <button value="save" class="btn primary">Save mapping</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="script.js"></script>
 </body>
-
 </html>

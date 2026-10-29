@@ -1,0 +1,874 @@
+/* ==========================================================================
+   Uniso — design tokens
+   Everything below is built from these values: one type scale, one spacing
+   scale, three radii and one control height.
+   ========================================================================== */
+:root {
+  color-scheme: light dark;
+
+  /* Colour */
+  --bg: #f4f5f7;
+  --panel: #ffffff;
+  --text: #1b1d22;
+  --muted: #6b7280;
+  --border: #dfe2e7;
+  --accent: #5048d8;
+  --accent-text: #ffffff;
+  --accent-soft: #ecebfc;
+  --danger: #c53030;
+  --ok: #1f8a4c;
+  --warn: #a8670f;
+  --kbd-bg: #f0f1f4;
+
+  /* Music colours: selection = pink, playing = amber, scale = teal */
+  --chord: #e0306a;
+  --chord-text: #ffffff;
+  --play: #ffb21e;
+  --play-text: #1b1300;
+  --scale: #0f9d8f;
+  --scale-text: #ffffff;
+
+  /* Type scale */
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --fs-xs: 0.72rem;   /* labels (uppercase) */
+  --fs-sm: 0.82rem;   /* secondary text, chips, small buttons */
+  --fs-md: 0.92rem;   /* body, controls, buttons */
+  --fs-lg: 1.05rem;   /* section titles, emphasised values */
+  --fs-xl: 1.5rem;    /* app title */
+  --fs-display: 1.9rem; /* chord symbol */
+
+  /* Spacing */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+
+  /* Shape */
+  --r-sm: 6px;
+  --r-md: 8px;
+  --r-lg: 12px;
+  --r-pill: 999px;
+  --control-h: 36px;
+  --chip-h: 24px;
+
+  /* Piano geometry and colours */
+  --wk: 46px;              /* white key width */
+  --bk: 30px;              /* black key width */
+  --piano-h: 236px;
+  --bk-h: 56%;
+  --swk: calc(var(--wk) * 6 / 7);   /* standard piano white key: same octave width as Uniso */
+  --sbk: calc(var(--swk) * 0.6);    /* standard piano black key */
+  --std-h: calc(var(--piano-h) * 0.85);
+  --pk-line: #000000;
+  --pk-white: #ffffff;
+  --pk-white-text: #111111;
+  --pk-black: #000000;
+  --pk-black-text: #ffffff;
+  --pk-grey: #a2a3a9;
+  --pk-grey-text: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121317;
+    --panel: #1b1d23;
+    --text: #e6e7eb;
+    --muted: #9097a3;
+    --border: #2d3039;
+    --accent: #8c86f7;
+    --accent-text: #11101f;
+    --accent-soft: #26244a;
+    --danger: #f07272;
+    --ok: #5ccf8d;
+    --warn: #f0b75a;
+    --kbd-bg: #262932;
+    --chord: #ff4d86;
+    --scale: #22b8a6;
+    --scale-text: #03201c;
+    --pk-white: #e4e5e9;
+    --pk-black: #08080a;
+    --pk-grey: #8f9198;
+  }
+}
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: var(--fs-md)/1.5 var(--font);
+}
+
+h1, h2, h3 { margin: 0; line-height: 1.25; }
+h1 { font-size: var(--fs-xl); letter-spacing: -0.01em; }
+h2 { font-size: var(--fs-lg); }
+h3 { font-size: var(--fs-lg); }
+
+.muted { color: var(--muted); font-weight: 400; }
+.mono { font-family: var(--mono); font-size: var(--fs-sm); }
+.right { text-align: right; }
+
+/* The one label style: field labels, row labels, table headers */
+.label,
+.field > span,
+.map-table th {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2em;
+  height: var(--chip-h);
+  padding: 0 var(--sp-2);
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  background: var(--kbd-bg);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: var(--fs-sm);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* ==========================================================================
+   Layout
+   ========================================================================== */
+.top {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 28px 20px var(--sp-2);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3) var(--sp-5);
+  align-items: center;
+  justify-content: space-between;
+}
+.h1-sub { margin-left: var(--sp-2); font-size: var(--fs-md); font-weight: 500; color: var(--muted); letter-spacing: 0; }
+
+main {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: var(--sp-3) 20px 40px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--sp-4);
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 20px;
+}
+.panel > h2 { margin-bottom: var(--sp-4); }
+.panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  min-height: 32px;
+  margin-bottom: var(--sp-4);
+}
+
+.theory-title { display: flex; align-items: center; gap: var(--sp-2); }
+.swatch { display: inline-block; flex: none; width: 14px; height: 14px; }
+.swatch-scale { border-radius: 50%; background: var(--scale); }
+.swatch-chord { border-radius: 3px; background: var(--chord); }
+
+.controls, .toolbar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--sp-3); }
+.toolbar { align-items: center; gap: var(--sp-2); }
+.push-right { margin-left: auto; }
+
+/* ==========================================================================
+   Controls
+   ========================================================================== */
+.field { display: grid; gap: 7px; }
+.field.grow { flex: 1; min-width: 0; }
+.field > span { display: flex; gap: var(--sp-2); }
+/* Optical alignment: labels sit slightly left of the rounded box they describe */
+.field > span, .np-tones > .label { margin-left: -2px; }
+
+select {
+  height: var(--control-h);
+  min-width: 140px;
+  padding: 0 30px 0 var(--sp-3);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: var(--panel);
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+    linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position: calc(100% - 16px) 52%, calc(100% - 11px) 52%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+select:disabled { opacity: 0.5; cursor: default; }
+input[type="range"] { width: 100%; height: var(--control-h); accent-color: var(--accent); }
+
+/* Buttons: outlined by default; .primary filled; .danger red; .small compact */
+.btn {
+  /* Block box + cap-height trim + equal padding = text optically centred */
+  display: inline-block;
+  height: var(--control-h);
+  padding: calc((var(--control-h) - 2px - 1cap) / 2) 14px;
+  text-box: trim-both cap alphabetic;
+  text-align: center;
+  vertical-align: middle;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--text);
+  font: 500 var(--fs-md)/1 var(--font);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 100ms, background-color 100ms;
+}
+.btn:not(:disabled):hover { border-color: var(--accent); }
+.btn:disabled { opacity: 0.45; cursor: default; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
+.btn.primary:not(:disabled):hover { filter: brightness(1.08); }
+.btn.danger { color: var(--danger); }
+.btn.danger:not(:disabled):hover { border-color: var(--danger); }
+.btn.small { height: 28px; padding: calc((28px - 2px - 1cap) / 2) 10px; font-size: var(--fs-sm); border-radius: var(--r-sm); }
+.btn.listening { animation: pulse 1.2s ease-in-out infinite; }
+
+select:focus-visible, .btn:focus-visible, .pill-toggle:focus-visible, .np-hist:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Switch-style pill toggle */
+.pill-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  height: 32px;
+  padding: 0 14px 0 var(--sp-2);
+  border-radius: var(--r-pill);
+  border: 1px solid color-mix(in srgb, var(--muted) 45%, transparent);
+  background: transparent;
+  color: color-mix(in srgb, var(--text) 80%, transparent);
+  font: 500 var(--fs-sm)/1 var(--font);
+  cursor: pointer;
+}
+.pill-toggle:hover { border-color: var(--accent); }
+.pill-dot {
+  position: relative;
+  width: 26px;
+  height: 14px;
+  border-radius: var(--r-pill);
+  background: color-mix(in srgb, var(--muted) 55%, transparent);
+  transition: background-color 120ms;
+}
+.pill-dot::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--panel);
+  transition: transform 120ms;
+}
+.pill-toggle[aria-pressed="true"] { color: var(--text); border-color: var(--accent); }
+.pill-toggle[aria-pressed="true"] .pill-dot { background: var(--accent); }
+.pill-toggle[aria-pressed="true"] .pill-dot::after { transform: translateX(12px); }
+
+/* Status pill in the header */
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin: 0;
+  min-height: 30px;
+  padding: 4px var(--sp-3);
+  border-radius: var(--r-pill);
+  border: 1px solid var(--border);
+  background: var(--panel);
+  font-size: var(--fs-sm);
+}
+.status::before { content: ""; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+.status.ok::before { background: var(--ok); }
+.status.warn::before { background: var(--warn); }
+.status.error { color: var(--danger); }
+.status.error::before { background: var(--danger); }
+
+/* ==========================================================================
+   Piano
+   ========================================================================== */
+.piano-panel {
+  width: calc(100% - 40px);
+  max-width: calc(var(--white-count, 36) * var(--wk) + var(--bk) / 2 + 42px);
+  margin: var(--sp-3) auto 0;
+  padding-bottom: var(--sp-3);
+}
+.piano-panel .panel-head { margin-bottom: var(--sp-3); }
+.piano-scroll { overflow-x: auto; overflow-y: hidden; padding-bottom: 6px; }
+.toggles { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+
+/* Standard piano (optional, above the Uniso one, same scroll) */
+.piano.std-piano {
+  height: var(--std-h);
+  margin-bottom: var(--sp-4);
+  /* Same octave width on both pianos; shifting by (wk - swk) / 2 = wk / 14
+     puts the middle of every C right above the middle of the Uniso C. */
+  margin-left: calc(var(--wk) / 14);
+  width: calc(var(--white-count, 36) * var(--wk) + var(--bk) / 2 - var(--wk) / 14);
+}
+.piano.std-piano[hidden] { display: none; }
+.std-piano .pk-white { flex: 0 0 var(--swk); }
+.std-piano .pk-black { width: var(--sbk); height: 60%; padding-bottom: 10px; }
+.std-piano .pk { padding-bottom: 12px; }
+.std-piano .pk-black .pk-name { font-size: 10px; padding: 0 3px; }
+.std-piano .pk:not(.mapped) .pk-name { opacity: 1; } /* no keyboard keys here, so nothing is 'unmapped' */
+
+/* Strip above the keys: octave labels on top, chord interval badges below.
+   It is always there, so selecting a chord never changes the panel height. */
+.chord-lane {
+  position: relative;
+  height: 28px;            /* = chord badge (22px) + its arrow (6px) */
+  width: calc(var(--white-count, 36) * var(--wk) + var(--bk) / 2);
+}
+.lane-ruler, .lane-badges { position: absolute; inset: 0; }
+.lane-oct {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-left: 1.5px solid color-mix(in srgb, var(--muted) 55%, transparent);
+  padding-left: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+  transform: translateX(-0.75px);
+}
+.lane-degree {
+  position: absolute;
+  z-index: 1; /* may sit on top of an octave label, that's fine */
+  bottom: 6px;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 22px;
+  min-width: 30px;
+  padding: 0 7px;
+  border-radius: var(--r-pill);
+  background: var(--chord);
+  color: var(--chord-text);
+  font: 800 12px/1 var(--font);
+  white-space: nowrap;
+}
+.lane-degree::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -6px;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-bottom: 0;
+  border-top-color: var(--chord);
+}
+.lane-degree.root { background: var(--panel); color: var(--chord); box-shadow: inset 0 0 0 2px var(--chord); }
+
+.piano {
+  position: relative;
+  display: flex;
+  height: var(--piano-h);
+  width: calc(var(--white-count, 36) * var(--wk) + var(--bk) / 2);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.pk {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 0 2px 15px;
+  border: 2px solid var(--pk-line);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background-color 50ms;
+}
+.pk-white {
+  flex: 0 0 var(--wk);
+  height: 100%;
+  border-left-width: 0;
+  border-radius: 0 0 4px 4px;
+  background: var(--pk-white);
+  color: var(--pk-white-text);
+}
+.pk-white:first-child { border-left-width: 2px; }
+.pk-black {
+  position: absolute;
+  top: 0;
+  z-index: 2;
+  width: var(--bk);
+  height: var(--bk-h);
+  padding-bottom: 14px;
+  border-radius: 0 0 3px 3px;
+  background: var(--pk-black);
+  color: var(--pk-black-text);
+}
+.pk.grey { background: var(--pk-grey); color: var(--pk-grey-text); }
+.pk.in-chord:not(.active) { background: var(--chord); color: var(--chord-text); }
+.pk.active { background: var(--play); color: var(--play-text); }
+.pk-white.active { box-shadow: inset 0 -6px 0 rgba(0, 0, 0, 0.18); }
+.pk-black.active { box-shadow: inset 0 -5px 0 rgba(0, 0, 0, 0.3); }
+
+.pk-name {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 19px;
+  min-width: 19px;
+  padding: 0 5px;
+  border-radius: var(--r-pill);
+  font: 700 12px/1 var(--font);
+  white-space: nowrap;
+}
+.pk-black .pk-name { height: 18px; min-width: 18px; padding: 0 4px; font-size: 11px; }
+.pk:not(.mapped) .pk-name { opacity: 0.5; }
+.pk.active .pk-name, .pk.in-chord .pk-name { opacity: 1; }
+
+/* Scale: in-scale note names become teal pills, the root gets a ring,
+   everything else fades. Key colours (grey C / F) are untouched. */
+.piano.scale-on .pk:not(.in-scale) .pk-name { opacity: 0.6; }
+.piano.scale-on .pk.in-chord .pk-name, .piano.scale-on .pk.active .pk-name { opacity: 1; }
+.pk.in-scale .pk-name { opacity: 1; background: var(--scale); color: var(--scale-text); }
+.pk.scale-root .pk-name { outline: 2px solid var(--scale); outline-offset: 2px; }
+
+.pk-binds { display: flex; flex-direction: column; align-items: center; gap: 3px; max-width: 100%; }
+.piano.hide-binds .pk-binds { display: none; }
+.pk-bind {
+  /* Block box + cap-height trim + equal padding = text centred (as for .btn) */
+  display: inline-block;
+  height: 18px;
+  max-width: 100%;
+  padding: calc((18px - 1cap) / 2) 5px;
+  text-box: trim-both cap alphabetic;
+  text-align: center;
+  border-radius: 4px;
+  background: var(--accent);
+  color: var(--accent-text);
+  font: 700 11px/1 var(--mono);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pk-black .pk-bind { padding-left: 3px; padding-right: 3px; font-size: 10px; }
+.pk.active .pk-bind { background: var(--play-text); color: var(--play); }
+.pk-more { font-size: 10px; font-weight: 700; opacity: 0.8; }
+
+/* ==========================================================================
+   Chords panel
+   ========================================================================== */
+.chord-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--sp-3);
+  padding-bottom: var(--sp-4);
+  margin-bottom: var(--sp-4);
+  border-bottom: 1px solid var(--border);
+}
+.chord-bar .field.grow { flex: 1 1 170px; }
+.chord-bar .field.grow select { width: 100%; min-width: 0; }
+.chord-bar .field.root select { min-width: 76px; }
+.chord-action { width: 140px; overflow: hidden; text-overflow: ellipsis; }
+
+/* Play-along status (only while a chord is selected) */
+.np-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 var(--sp-3);
+  border-radius: var(--r-pill);
+  border: 1px solid var(--border);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.np-state[hidden] { display: none; }
+.np-state::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--chord); }
+.np-state.sel-partial { color: var(--warn); border-color: var(--warn); }
+.np-state.sel-partial::before { background: var(--warn); }
+.np-state.sel-match { color: var(--ok); border-color: var(--ok); }
+.np-state.sel-match::before { background: var(--ok); }
+.np-state.sel-extra { color: var(--danger); border-color: var(--danger); }
+.np-state.sel-extra::before { background: var(--danger); }
+
+/* Two columns: what the chord is | its notes. Every slot has a fixed size,
+   so nothing moves while playing. */
+.np-body {
+  display: grid;
+  grid-template-columns: minmax(0, 420px) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--sp-4) var(--sp-5);
+  transition: opacity 150ms;
+}
+
+.np-head { display: flex; align-items: center; gap: var(--sp-4); min-width: 0; }
+.np-symbol.pickable { cursor: pointer; transition: box-shadow 100ms; }
+.np-symbol.pickable:hover { box-shadow: 0 0 0 3px var(--panel), 0 0 0 5px var(--play); }
+.np-symbol {
+  flex: none;
+  width: 140px;
+  height: 96px;
+  display: grid;
+  place-items: center;
+  padding: 0 var(--sp-2);
+  border-radius: var(--r-lg);
+  background: var(--accent-soft);
+  color: var(--text);
+  font: 800 var(--fs-display)/1 var(--font);
+  white-space: nowrap;
+  overflow: hidden;
+}
+.np-symbol.chord { background: var(--play); color: var(--play-text); }                 /* playing = amber */
+.mode-selected .np-symbol.chord { background: var(--chord); color: var(--chord-text); } /* selected = pink */
+.np-body.empty .np-symbol { color: var(--muted); }
+
+.np-desc { display: grid; gap: 2px; min-width: 0; }
+.np-desc > div { min-height: 1.4em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mode-selected .np-mode { color: var(--chord); }
+.np-title { font-size: var(--fs-lg); font-weight: 700; }
+.np-meta { font-size: var(--fs-sm); }
+.np-alt { font-size: var(--fs-sm); color: var(--muted); }
+
+.np-tones { display: grid; gap: var(--sp-2); min-width: 0; }
+.np-notes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-2);
+  height: 112px;           /* 100px cards + room for a thin scrollbar */
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+.np-placeholder { align-self: center; color: var(--muted); font-size: var(--fs-sm); }
+
+/* Note card: name + interval badge, role, keys that play it */
+.np-note {
+  flex: 1 1 0;
+  min-width: 92px;
+  max-width: 120px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto 1fr;
+  row-gap: 2px;
+  height: 100px;
+  padding: 10px;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--border);
+  transition: background-color 80ms, border-color 80ms;
+}
+.np-note-name { font-size: var(--fs-lg); font-weight: 800; line-height: 22px; }
+.np-deg {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 22px;
+  min-width: 22px;
+  padding: 0 6px;
+  border-radius: var(--r-pill);
+  background: var(--chord);
+  color: var(--chord-text);
+  font: 800 12px/1 var(--font);
+}
+.np-deg:empty { visibility: hidden; }
+.np-role {
+  grid-column: 1 / -1;
+  font-size: var(--fs-sm);
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.np-note-keys { grid-column: 1 / -1; align-self: end; display: flex; gap: var(--sp-1); }
+.np-note.root { border-color: var(--chord); box-shadow: inset 0 0 0 1px var(--chord); }
+.np-note.root .np-deg { background: var(--panel); color: var(--chord); box-shadow: inset 0 0 0 2px var(--chord); }
+/* While detecting, interval badges are neutral (pink means "selected") */
+.mode-detect .np-deg { background: var(--text); color: var(--panel); }
+.mode-detect .np-note.root { border-color: var(--text); box-shadow: inset 0 0 0 1px var(--text); }
+.mode-detect .np-note.root .np-deg { background: var(--panel); color: var(--text); box-shadow: inset 0 0 0 2px var(--text); }
+.np-note.on { background: var(--play); border-color: var(--play); color: var(--play-text); }
+.np-note.on .np-role { color: var(--play-text); }
+
+/* Chips (computer keys) */
+.np-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--chip-h);
+  min-width: var(--chip-h);
+  padding: 0 6px;
+  border-radius: var(--r-sm);
+  font: 700 var(--fs-sm)/1 var(--mono);
+  white-space: nowrap;
+}
+.np-chip.key { background: var(--accent); color: var(--accent-text); }
+.np-chip.key.on { background: var(--play-text); color: var(--play); }
+.np-note:not(.on) .np-chip.key.on { background: var(--play); color: var(--play-text); }
+.np-chip.missing { border: 1px dashed var(--border); color: var(--muted); font: 500 var(--fs-xs)/1 var(--font); }
+
+/* Recent chords */
+.np-history {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-top: var(--sp-4);
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--border);
+}
+.np-history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+/* Thin, rounded scrollbars for the sideways-scrolling rows */
+.np-notes, .np-history-list, .piano-scroll, .table-scroll { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--muted) 60%, transparent) transparent; }
+.np-notes::-webkit-scrollbar, .np-history-list::-webkit-scrollbar,
+.piano-scroll::-webkit-scrollbar, .table-scroll::-webkit-scrollbar { height: 8px; width: 8px; }
+.np-notes::-webkit-scrollbar-thumb, .np-history-list::-webkit-scrollbar-thumb,
+.piano-scroll::-webkit-scrollbar-thumb, .table-scroll::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--muted) 60%, transparent); border-radius: 999px; }
+.np-notes::-webkit-scrollbar-thumb:hover, .np-history-list::-webkit-scrollbar-thumb:hover,
+.piano-scroll::-webkit-scrollbar-thumb:hover, .table-scroll::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+.np-notes::-webkit-scrollbar-track, .np-history-list::-webkit-scrollbar-track,
+.piano-scroll::-webkit-scrollbar-track, .table-scroll::-webkit-scrollbar-track { background: transparent; }
+.np-history-list.empty::before { content: "No chords yet"; color: var(--muted); font-size: var(--fs-sm); white-space: nowrap; }
+.np-hist {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 var(--sp-3);
+  border-radius: var(--r-pill);
+  border: 0;
+  background: var(--accent-soft);
+  color: var(--text);
+  font: 700 var(--fs-sm)/1 var(--font);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.np-hist:hover { box-shadow: inset 0 0 0 1px var(--accent); }
+.np-hist.shown { box-shadow: inset 0 0 0 2px var(--play); }       /* chord shown in the panel */
+.np-hist.selected { background: var(--chord); color: var(--chord-text); } /* selected chord */
+
+/* ==========================================================================
+   Scale panel
+   ========================================================================== */
+.scale-bar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--sp-3); }
+.scale-bar .field.root select { min-width: 76px; }
+.scale-bar .scale-type select { width: 230px; min-width: 0; }
+/* Notes and triads rows: label on the left, content on the right */
+.scale-line {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-top: var(--sp-4);
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--border);
+}
+.scale-line > .label { flex: none; width: 56px; }
+/* Notes row: pills on top, step letters on a second line underneath */
+.scale-line.notes-line { align-items: flex-start; }
+.scale-line.notes-line > .label { line-height: 28px; margin-top: 4px; }
+
+/* Notes on the top line, evenly spaced; each step sits under the gap it describes */
+.scale-chain {
+  list-style: none;
+  margin: 0;
+  padding: 4px 4px 0;      /* room for the root's ring */
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: 28px 18px;
+  justify-content: start;
+  align-items: center;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+.scale-note {
+  grid-row: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  min-width: 28px;
+  padding: 0 7px;
+  border-radius: var(--r-pill);
+  background: var(--scale);
+  color: var(--scale-text);
+  font: 700 var(--fs-sm)/1 var(--font);
+}
+.scale-note.root { outline: 2px solid var(--scale); outline-offset: 2px; margin-right: 2px; }
+.scale-note.octave { background: transparent; color: var(--scale); box-shadow: inset 0 0 0 2px var(--scale); }
+.scale-gap {
+  grid-row: 1 / 3;
+  align-self: end;
+  width: 22px;
+  display: flex;
+  justify-content: center;
+}
+.scale-gap > span {
+  font-size: var(--fs-xs);
+  font-weight: 800;
+  line-height: 18px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.scale-none { color: var(--muted); font-size: var(--fs-sm); }
+
+/* Triads of the scale: click one to select it in Chords */
+.triad-list { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-height: 28px; }
+.triad {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  height: 28px;
+  padding: 0 var(--sp-3);
+  border: 0;
+  border-radius: var(--r-pill);
+  background: var(--accent-soft);
+  color: var(--text);
+  font: 700 var(--fs-sm)/28px var(--font);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.triad:hover { box-shadow: inset 0 0 0 1px var(--chord); }
+.triad:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.triad-num { font-size: var(--fs-xs); font-weight: 700; color: var(--muted); }
+.triad.selected { background: var(--chord); color: var(--chord-text); }
+.triad.selected .triad-num { color: var(--chord-text); opacity: 0.8; }
+
+/* ==========================================================================
+   MIDI monitor
+   ========================================================================== */
+.log {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 220px;
+  overflow-y: auto;
+  font: var(--fs-sm)/1.6 var(--mono);
+}
+.log li { padding: 2px 0; border-bottom: 1px solid var(--border); color: var(--muted); }
+.log li:first-child { color: var(--text); }
+.log li.err { color: var(--danger); }
+.log:empty::before { content: "No MIDI messages"; color: var(--muted); font-family: var(--font); }
+
+/* ==========================================================================
+   Key mappings
+   ========================================================================== */
+.capture {
+  margin: 0 0 var(--sp-3);
+  padding: var(--sp-3) 14px;
+  border-radius: var(--r-md);
+  border: 1px dashed var(--accent);
+  background: var(--accent-soft);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+.table-scroll { overflow-x: auto; }
+.map-table { width: 100%; border-collapse: collapse; }
+.map-table th { text-align: left; padding: 6px var(--sp-2); border-bottom: 1px solid var(--border); }
+.map-table th.right { text-align: right; }
+.map-table td { padding: 6px var(--sp-2); border-bottom: 1px solid var(--border); vertical-align: middle; }
+.map-table tr:last-child td { border-bottom: none; }
+.map-table tr { transition: background-color 60ms; }
+.map-table tr.active { background: color-mix(in srgb, var(--play) 30%, transparent); }
+.map-table td.actions { text-align: right; white-space: nowrap; }
+.map-table td.actions .btn + .btn { margin-left: var(--sp-1); }
+.note-name { font-weight: 700; }
+.key-code { margin-left: var(--sp-3); }
+.empty { margin: var(--sp-1) 0; color: var(--muted); }
+
+/* ==========================================================================
+   Mapping dialog
+   ========================================================================== */
+.dialog {
+  width: min(440px, calc(100vw - 32px));
+  padding: var(--sp-5);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--panel);
+  color: var(--text);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+}
+.dialog::backdrop { background: rgba(10, 10, 20, 0.45); }
+.dialog form { display: grid; gap: var(--sp-4); }
+.dialog #dlgNote { width: 100%; }
+.dlg-key { margin: 0; display: flex; gap: var(--sp-2); align-items: center; }
+.dlg-row { display: flex; gap: var(--sp-4); align-items: flex-end; }
+.dlg-row select { min-width: 120px; }
+.dlg-actions { display: flex; gap: var(--sp-2); align-items: center; }
+.spacer { flex: 1; }
+
+/* ==========================================================================
+   Optical centring: trim each pill's text box to the capital height so letters
+   and digits sit exactly in the middle (falls back to plain flex centring).
+   ========================================================================== */
+.np-deg, .lane-degree, .pk-name, .pk-bind, .scale-note, .np-chip, .np-hist, .np-state, kbd {
+  text-box: trim-both cap alphabetic;
+}
+
+/* ==========================================================================
+   Narrow screens
+   ========================================================================== */
+@media (max-width: 860px) {
+  .np-body { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 640px) {
+  :root { --wk: 38px; --bk: 26px; --piano-h: 210px; }
+  .top { padding: 20px 12px var(--sp-2); }
+  .piano-panel { width: calc(100% - 24px); padding: 14px 12px 10px; }
+  main { padding-left: 12px; padding-right: 12px; }
+  .panel { padding: var(--sp-4) 14px; }
+  .map-table th:nth-child(4), .map-table td:nth-child(4) { display: none; }
+  #outputSelect { width: 100%; min-width: 0; }
+  .controls .field:first-child { flex: 1 1 100%; }
+  .chord-action { width: auto; flex: 1 1 100%; }
+  .np-symbol { width: 110px; height: 80px; font-size: 1.5rem; }
+  .scale-bar .scale-type { flex: 1; }
+  .scale-bar .scale-type select { width: 100%; }
+  .scale-gap { width: 16px; }
+  .scale-line > .label { width: auto; }
+}
