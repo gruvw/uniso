@@ -1,0 +1,372 @@
+{
+  "app": "keyboard-midi-mapper",
+  "version": 1,
+  "defaultChannel": 1,
+  "mappings": [
+    {
+      "code": "ShiftLeft",
+      "label": "Shift Left",
+      "note": 60,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "KeyZ",
+      "label": ";",
+      "note": 62,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "KeyX",
+      "label": "Q",
+      "note": 64,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "KeyC",
+      "label": "J",
+      "note": 66,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "KeyV",
+      "label": "K",
+      "note": 68,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "KeyB",
+      "label": "X",
+      "note": 70,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "KeyA",
+      "label": "A",
+      "note": 61,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "KeyS",
+      "label": "O",
+      "note": 63,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "KeyD",
+      "label": "E",
+      "note": 65,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "KeyF",
+      "label": "U",
+      "note": 67,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "KeyG",
+      "label": "I",
+      "note": 69,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "KeyH",
+      "label": "D",
+      "note": 71,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "KeyN",
+      "label": "B",
+      "note": 72,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "KeyM",
+      "label": "M",
+      "note": 74,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "Comma",
+      "label": "W",
+      "note": 76,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "Period",
+      "label": "V",
+      "note": 78,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "Slash",
+      "label": "Z",
+      "note": 80,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "ShiftRight",
+      "label": "Shift Right",
+      "note": 82,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "KeyJ",
+      "label": "H",
+      "note": 73,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "KeyK",
+      "label": "T",
+      "note": 75,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "KeyL",
+      "label": "N",
+      "note": 77,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "Semicolon",
+      "label": "S",
+      "note": 79,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "Quote",
+      "label": "-",
+      "note": 81,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "Enter",
+      "label": "Enter",
+      "note": 83,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "Backspace",
+      "label": "Backspace",
+      "note": 59,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "Digit1",
+      "label": "1",
+      "note": 35,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "Digit2",
+      "label": "2",
+      "note": 37,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "Digit3",
+      "label": "3",
+      "note": 39,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "Digit4",
+      "label": "4",
+      "note": 41,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "Digit5",
+      "label": "5",
+      "note": 43,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "Digit6",
+      "label": "6",
+      "note": 45,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "Digit7",
+      "label": "7",
+      "note": 47,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "Digit8",
+      "label": "8",
+      "note": 49,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "Digit9",
+      "label": "9",
+      "note": 51,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "Digit0",
+      "label": "0",
+      "note": 53,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "Minus",
+      "label": "[",
+      "note": 55,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "Equal",
+      "label": "]",
+      "note": 57,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "Tab",
+      "label": "Tab",
+      "note": 34,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "KeyQ",
+      "label": "'",
+      "note": 36,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "KeyW",
+      "label": ",",
+      "note": 38,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "KeyE",
+      "label": ".",
+      "note": 40,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "KeyR",
+      "label": "P",
+      "note": 42,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "KeyT",
+      "label": "Y",
+      "note": 44,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "KeyY",
+      "label": "F",
+      "note": 46,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "KeyU",
+      "label": "G",
+      "note": 48,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "KeyI",
+      "label": "C",
+      "note": 50,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "KeyO",
+      "label": "R",
+      "note": 52,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "KeyP",
+      "label": "L",
+      "note": 54,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "BracketLeft",
+      "label": "/",
+      "note": 56,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "BracketRight",
+      "label": "=",
+      "note": 58,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "IntlBackslash",
+      "label": "<",
+      "note": 60,
+      "channel": null,
+      "velocity": 100
+    },
+    {
+      "code": "Backslash",
+      "label": "\\",
+      "note": 83,
+      "channel": null,
+      "velocity": 100
+    }
+  ],
+  "exportedAt": "2026-10-29T16:55:02.958Z"
+}
