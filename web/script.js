@@ -856,7 +856,7 @@ function renderScaleTriads(scale, scaleRoot) {
   }));
 }
 
-const STEP_LABELS = { 1: 'H', 2: 'W', 3: 'WH', 4: 'WW' };
+const STEP_LABELS = { 1: 'H', 2: 'W', 3: 'W+H', 4: 'W+W' };
 const STEP_TITLES = { 1: 'Half step (1 semitone)', 2: 'Whole step (2 semitones)', 3: 'Whole + half step (3 semitones)', 4: 'Two whole steps (4 semitones)' };
 
 /** Scale notes in a row, evenly spaced, ending on the octave; under each gap, the step between the two notes. */
