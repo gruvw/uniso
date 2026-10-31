@@ -3,18 +3,67 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Uniso Virtual Midi Keyboard</title>
+  <title>Uniso Fretboard Visualizer | Isomorphic MIDI Keyboard</title>
+  <meta name="description" content="Free fretboard visualizer and virtual MIDI keyboard. Map your computer keys to an isomorphic layout, explore scales and chords, and play any DAW via Web MIDI.">
+  <meta name="keywords" content="fretboard visualizer, isomorphic keyboard, virtual MIDI keyboard, computer keyboard to MIDI, Web MIDI, scales, chords, whole tone layout, Janko keyboard">
+  <meta name="author" content="gruvw">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://gruvw.github.io/uniso/">
+
+  <!-- Social previews -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Uniso">
+  <meta property="og:title" content="Uniso Fretboard Visualizer">
+  <meta property="og:description" content="Map your computer keyboard to an isomorphic layout, explore scales and chords, and play any DAW or synth through Web MIDI.">
+  <meta property="og:url" content="https://gruvw.github.io/uniso/">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Uniso Fretboard Visualizer">
+  <meta name="twitter:description" content="Map your computer keyboard to an isomorphic layout, explore scales and chords, and play any DAW or synth through Web MIDI.">
+
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#f4f5f7" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#121317" media="(prefers-color-scheme: dark)">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%231b1d23'/%3E%3Ccircle cx='32' cy='22' r='8.5' fill='%23fff'/%3E%3Ccircle cx='21' cy='42' r='8.5' fill='%23fff'/%3E%3Ccircle cx='43' cy='42' r='8.5' fill='%23fff'/%3E%3C/svg%3E">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Uniso Fretboard Visualizer",
+    "url": "https://gruvw.github.io/uniso/",
+    "description": "Free fretboard visualizer and virtual MIDI keyboard. Map your computer keys to an isomorphic layout, explore scales and chords, and play any DAW via Web MIDI.",
+    "applicationCategory": "MultimediaApplication",
+    "operatingSystem": "Any (Chrome, Edge or Opera with Web MIDI)",
+    "browserRequirements": "Requires Web MIDI support",
+    "isAccessibleForFree": true,
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "author": { "@type": "Person", "name": "gruvw", "url": "https://github.com/gruvw" },
+    "sameAs": ["https://github.com/gruvw/uniso"]
+  }
+  </script>
+
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <header class="top">
-    <h1>Uniso <span class="h1-sub">Virtual Midi Keyboard</span></h1>
+    <h1>Uniso <span class="h1-sub">Fretboard Visualizer</span></h1>
     <p id="midiStatus" class="status">Requesting MIDI access…</p>
+    <a class="repo-link" href="https://github.com/gruvw/uniso" target="_blank" rel="noopener" title="Star Uniso on GitHub">
+      <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linejoin="round">
+        <path d="M12 2.8l2.8 5.7 6.3.9-4.6 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2-4.6-4.4 6.3-.9z"/>
+      </svg>
+      <span>Star<span class="repo-more"> on GitHub</span></span>
+    </a>
   </header>
+
+  <noscript>
+    <p class="noscript">Uniso needs JavaScript to run. Enable it and reload the page.</p>
+  </noscript>
 
   <section class="panel piano-panel" aria-label="Piano visualizer">
     <div class="panel-head">
-      <h2>Uniso <span class="muted">C1 – B6</span></h2>
+      <h2>Uniso <span class="muted">C1 to B6</span></h2>
       <div class="toggles">
         <button type="button" id="stdToggle" class="pill-toggle" aria-pressed="false"
                 title="Show a regular piano layout above the Uniso one">
@@ -62,7 +111,7 @@
 
       <div id="npBody" class="np-body" aria-live="polite">
         <div class="np-head">
-          <div id="npSymbol" class="np-symbol">—</div>
+          <div id="npSymbol" class="np-symbol">♪</div>
           <div class="np-desc">
             <div id="npMode" class="label np-mode"></div>
             <div id="npName" class="np-title"></div>
@@ -71,7 +120,7 @@
           </div>
         </div>
         <div class="np-tones">
-          <span id="npTonesLabel" class="label">Notes · bass to top</span>
+          <span id="npTonesLabel" class="label">Notes, bass to top</span>
           <ol id="npTones" class="np-notes"></ol>
         </div>
       </div>
@@ -168,6 +217,15 @@
       </p>
     </section>
   </main>
+
+  <footer class="site-footer">
+    <p>
+      <strong>Uniso</strong> is a free fretboard visualizer and virtual MIDI keyboard for an isomorphic layout:
+      each row is a whole-tone scale and the row above sits a semitone higher. Map any computer key to a note,
+      explore scales, triads and chords on the Uniso and standard pianos, and play any DAW or synth through Web MIDI.
+    </p>
+    <p><a href="https://github.com/gruvw/uniso" target="_blank" rel="noopener">Source code on GitHub</a></p>
+  </footer>
 
   <dialog id="noteDialog" class="dialog">
     <form method="dialog" id="noteForm">

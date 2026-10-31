@@ -48,8 +48,8 @@ const SCALES = [
   ] },
   { group: 'Symmetric', items: [
     { id: 'whole-tone', name: 'Whole tone', steps: [0, 2, 4, 6, 8, 10] },
-    { id: 'dim-wh', name: 'Diminished (whole–half)', steps: [0, 2, 3, 5, 6, 8, 9, 11] },
-    { id: 'dim-hw', name: 'Diminished (half–whole)', steps: [0, 1, 3, 4, 6, 7, 9, 10] },
+    { id: 'dim-wh', name: 'Diminished (whole-half)', steps: [0, 2, 3, 5, 6, 8, 9, 11] },
+    { id: 'dim-hw', name: 'Diminished (half-whole)', steps: [0, 1, 3, 4, 6, 7, 9, 10] },
     { id: 'chromatic', name: 'Chromatic', steps: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] },
   ] },
 ];
@@ -96,7 +96,7 @@ const CHORDS = [
     chord('13', 'Dominant 13th', '13', [0, 4, 7, 10, 14, 21], 'R 3 5 b7 9 13'),
   ] },
 ];
-const CHORD_OCTAVE_C = 60; // chords are rooted in octave 4 (C4–B4)
+const CHORD_OCTAVE_C = 60; // chords are rooted in octave 4 (C4-B4)
 
 /* Other common ways to write each chord symbol. */
 const CHORD_ALIASES = {
@@ -292,7 +292,7 @@ function fillNoteSelect(select) {
     for (let i = 0; i < 12; i++) {
       const n = (octave + 1) * 12 + i;
       if (n > 127) break;
-      group.append(new Option(`${noteName(n)}  ·  ${n}`, String(n)));
+      group.append(new Option(`${noteName(n)}  (${n})`, String(n)));
     }
     select.append(group);
   }
@@ -321,7 +321,7 @@ function addLog(text, isError = false) {
 
 async function initMidi() {
   if (!navigator.requestMIDIAccess) {
-    setStatus('Web MIDI is not available in this browser — use Chrome, Edge or Opera.', 'error');
+    setStatus('Web MIDI is not available in this browser. Use Chrome, Edge or Opera.', 'error');
     els.outputSelect.replaceChildren(new Option('Web MIDI unavailable', ''));
     return;
   }
@@ -346,7 +346,7 @@ function refreshOutputs() {
     select.append(new Option('No MIDI outputs found', ''));
     select.disabled = true;
     setOutput(null);
-    setStatus('No MIDI output ports — create a virtual MIDI port (IAC Driver, loopMIDI…).', 'warn');
+    setStatus('No MIDI output ports. Create a virtual MIDI port (IAC Driver, loopMIDI…).', 'warn');
     return;
   }
 
@@ -365,7 +365,7 @@ function refreshOutputs() {
 
   select.value = chosen.id;
   if (!state.output || state.output.id !== chosen.id) setOutput(chosen);
-  setStatus(`Sending to “${chosen.name}” · ${outputs.length} output${outputs.length > 1 ? 's' : ''} available`, 'ok');
+  setStatus(`Sending to “${chosen.name}” (${outputs.length} output${outputs.length > 1 ? 's' : ''} available)`, 'ok');
 }
 
 function setOutput(output) {
@@ -396,14 +396,14 @@ function send(bytes) {
 function sendNoteOn(note, channel, velocity) {
   const ok = send([0x90 | (channel - 1), note, velocity]);
   addLog(ok
-    ? `Note on   ${noteName(note).padEnd(4)} (${note}) · ch ${channel} · vel ${velocity}`
-    : `Note on   ${noteName(note)} — no output selected`, !ok);
+    ? `Note on   ${noteName(note).padEnd(4)} (${note})  ch ${channel}  vel ${velocity}`
+    : `Note on   ${noteName(note)}: no output selected`, !ok);
   return ok;
 }
 
 function sendNoteOff(note, channel) {
   const ok = send([0x80 | (channel - 1), note, 0]);
-  if (ok) addLog(`Note off  ${noteName(note).padEnd(4)} (${note}) · ch ${channel}`);
+  if (ok) addLog(`Note off  ${noteName(note).padEnd(4)} (${note})  ch ${channel}`);
   return ok;
 }
 
@@ -443,7 +443,7 @@ function panic() {
     send([0xb0 | ch, 123, 0]); // All Notes Off
     send([0xb0 | ch, 120, 0]); // All Sound Off
   }
-  addLog(state.output ? 'All notes off (ch 1–16)' : 'All notes off — no output selected', !state.output);
+  addLog(state.output ? 'All notes off (ch 1 to 16)' : 'All notes off: no output selected', !state.output);
 }
 
 /* ------------------------------ sustain ----------------------------- */
@@ -452,7 +452,7 @@ const isSustain = (m) => m && m.action === 'sustain';
 
 function sendSustain(channel, on) {
   const ok = send([0xb0 | (channel - 1), 64, on ? 127 : 0]);
-  addLog(ok ? `Sustain ${on ? 'on ' : 'off'}  · ch ${channel}` : 'Sustain — no output selected', !ok);
+  addLog(ok ? `Sustain ${on ? 'on ' : 'off'}       ch ${channel}` : 'Sustain: no output selected', !ok);
 }
 
 /* Several sustain keys may share a channel: pedal down on the first, up on the last. */
@@ -595,7 +595,7 @@ function physicalKeyLabel(mapping) {
   }
   if (code in KEY_SYMBOLS) return KEY_SYMBOLS[code];
   if (code.startsWith('key:')) return shortKeyLabel(mapping.label); // browser gave no code
-  return code; // F1–F12 and other named keys
+  return code; // F1-F12 and other named keys
 }
 
 function renderPianoBindings() {
@@ -612,7 +612,7 @@ function renderPianoBindings() {
     if (list.length > 2) chips.push(el('span', { className: 'pk-more', textContent: `+${list.length - 2}` }));
     key.querySelector('.pk-binds').replaceChildren(...chips);
     key.classList.toggle('mapped', list.length > 0);
-    key.title = `${noteName(note)} · MIDI ${note} · ` +
+    key.title = `${noteName(note)}, MIDI ${note}: ` +
       (list.length ? list.map((m) => `physical key ${physicalKeyLabel(m)} (${m.code}, types “${m.label}”)`).join(', ') : 'not mapped');
   }
 }
@@ -731,12 +731,12 @@ function fillInversions(value) {
   }
   els.chordInv.disabled = false;
   els.chordInv.replaceChildren(...c.steps.map((_, i) => new Option(
-    i === 0 ? INVERSION_NAMES[0] : `${INVERSION_NAMES[i]} · ${fmtDegree(c.degrees[i])} in bass`, String(i))));
+    i === 0 ? INVERSION_NAMES[0] : `${INVERSION_NAMES[i]} (${fmtDegree(c.degrees[i])} in bass)`, String(i))));
   els.chordInv.value = Number(value) < c.steps.length ? String(Number(value) || 0) : '0';
 }
 
 /** The selected chord voiced in octave 4: inversion k moves the lowest k tones up an octave,
-    then the whole chord is shifted so its bass note sits in C4–B4. */
+    then the whole chord is shifted so its bass note sits in C4-B4. */
 function currentChordNotes() {
   const c = findIn(CHORDS, els.chordType.value);
   if (!c) return null;
@@ -777,7 +777,7 @@ function renderTheory() {
     const badge = el('span', {
       className: `lane-degree${degree === 'R' ? ' root' : ''}`,
       textContent: fmtDegree(degree),
-      title: `${noteName(note)} · ${DEGREE_NAMES[degree] || degree}`,
+      title: `${noteName(note)}: ${DEGREE_NAMES[degree] || degree}`,
     });
     badge.style.left = pianoCenters.get(note);
     badges.push(badge);
@@ -847,7 +847,7 @@ function renderScaleTriads(scale, scaleRoot) {
     return el('button', {
       type: 'button',
       className: `triad${selected ? ' selected' : ''}`,
-      title: `${capitalize(`${NOTE_NAMES[tr.root]} ${tr.t.name.toLowerCase()}`)} · select`,
+      title: `Select ${NOTE_NAMES[tr.root]} ${tr.t.name.toLowerCase()}`,
       onclick: () => selectChord({ root: tr.root, id: tr.t.id, inv: 0 }),
     },
       tr.numeral ? el('span', { className: 'triad-num', textContent: tr.numeral }) : '',
@@ -1104,11 +1104,11 @@ function renderPanel(mode, r, notes) {
 
   if (!r) {
     els.npSymbol.className = 'np-symbol';
-    setSymbol('—');
+    setSymbol('♪');
     els.npName.textContent = 'No notes';
     els.npMeta.textContent = 'Chord name and tones appear here.';
     els.npAlt.textContent = '';
-    els.npTones.replaceChildren(placeholder('—'));
+    els.npTones.replaceChildren(placeholder('None'));
     state.displaySymbol = null;
     renderHistory();
     renderChordAction(selected, r);
@@ -1128,11 +1128,12 @@ function renderPanel(mode, r, notes) {
     symbol = r.symbol;
     title = capitalize(r.fullName);
     meta.push(r.inversion, `Formula ${r.formula}`);
-    if (r.aliases.length) alt.push(`= ${r.aliases.join(', ')}`);
-    if (r.alternatives.length) alt.push(`also ${r.alternatives.join(', ')}`);
+    const also = r.alternatives.join(', ');
+    if (r.aliases.length) alt.push(`= ${r.aliases.join(', ')}${also ? ` (also ${also})` : ''}`);
+    else if (also) alt.push(`Also ${also}`);
   } else if (r.kind === 'interval') {
     const semis = hi - lo;
-    symbol = `${NOTE_NAMES[lo % 12]}–${NOTE_NAMES[hi % 12]}`;
+    symbol = `${NOTE_NAMES[lo % 12]}-${NOTE_NAMES[hi % 12]}`;
     title = capitalize(intervalName(semis));
     meta.push(`${semis} semitone${semis === 1 ? '' : 's'}`);
     if (semis > 12) alt.push(`A ${intervalName(semis % 12)} plus ${Math.floor(semis / 12)} octave${semis >= 24 ? 's' : ''}`);
@@ -1148,14 +1149,14 @@ function renderPanel(mode, r, notes) {
   els.npSymbol.className = `np-symbol ${r.kind}`;
   setSymbol(symbol);
   els.npName.textContent = title;
-  els.npMeta.textContent = meta.join('  ·  ');
-  els.npAlt.textContent = alt.join('  ·  ');
+  els.npMeta.textContent = meta.join(', ');
+  els.npAlt.textContent = alt.join(', ');
   els.npAlt.title = r.kind === 'chord'
     ? [r.aliases.length ? `Also written ${r.aliases.join(', ')}` : '', r.alternatives.length ? `Same notes as ${r.alternatives.join(', ')}` : ''].filter(Boolean).join('\n')
     : '';
 
   // Notes, bass to top: role, interval badge and the keys that play each note
-  els.npTonesLabel.textContent = r.kind === 'chord' ? 'Chord tones · bass to top' : 'Notes · bass to top';
+  els.npTonesLabel.textContent = r.kind === 'chord' ? 'Chord tones, bass to top' : 'Notes, bass to top';
   const heldCodes = new Set(state.held.keys());
   els.npTones.replaceChildren(...r.notes.map((n, i) => {
     let degree = '';
@@ -1242,7 +1243,7 @@ function renderHistory() {
       type: 'button',
       className: `np-hist${isSelected(h) ? ' selected' : h.symbol === state.displaySymbol ? ' shown' : ''}`,
       textContent: h.symbol,
-      title: `${capitalize(h.fullName)} · select`,
+      title: `Select ${h.fullName}`,
       onclick: () => selectChord(h),
     })));
   els.npHistory.replaceChildren(...items);
@@ -1273,7 +1274,7 @@ function onKeyDown(e) {
     }
     const code = keyId(e);
     if (!code) {
-      addLog('That key cannot be identified by the browser — try another one.', true);
+      addLog('That key cannot be identified by the browser. Try another one.', true);
       return;
     }
     stopCapture();
@@ -1420,7 +1421,7 @@ function render() {
         ? el('td', {}, el('span', { className: 'note-name', textContent: 'Sustain' }), ' ', el('span', { className: 'muted', textContent: 'CC 64' }))
         : el('td', {}, el('span', { className: 'note-name', textContent: noteName(m.note) }), ' ', el('span', { className: 'muted', textContent: String(m.note) })),
       channelCell,
-      el('td', { textContent: isSustain(m) ? '—' : String(m.velocity) }),
+      el('td', { textContent: isSustain(m) ? '-' : String(m.velocity) }),
       el('td', { className: 'actions' },
         el('button', { type: 'button', className: 'btn small', textContent: '▶ Test', title: isSustain(m) ? 'Press the sustain pedal' : 'Play this note' }),
         el('button', { type: 'button', className: 'btn small', textContent: 'Edit' }),
@@ -1517,7 +1518,7 @@ function save() {
       view: theoryView(),
     }));
   } catch {
-    /* storage unavailable (private mode, file:// restrictions…) — export still works */
+    /* storage unavailable (private mode, file:// restrictions…) - export still works */
   }
 }
 
